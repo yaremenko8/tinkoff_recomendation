@@ -1,7 +1,39 @@
 import pickle
 import os 
 import platform
+import pandas as pd
 dir_path = os.path.dirname(os.path.realpath(__file__))
+
+def extract_all_raw_data():
+    path = dir_path + "/data"
+    if platform.system() == "Windows":
+        path = path.reaplce('/', '\\')
+    directory = os.fsencode(path)
+    dataframes = {}
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        filepath = os.path.join(directory, filename)
+        dataframes[filename.replace(".csv", "")] = pd.read_csv(filepath)
+    return dataframes
+
+
+def remove_faulty_rows(dfs):
+    for name in dfs:
+        print("Before cleansing: %d. " % len(dfs[name]), end="")
+        for column in dfs[name].columns:
+            dfs[name] = dfs[name][dfs[name][column].notna()]
+        print("After cleansing: %d." % len(dfs[name]),)
+    return dfs
+
+
+def dump_dataframes(dfs):
+    for name in dfs:
+        save_data(dfs[name], name)
+
+        
+def extract_cleanse_and_dump_raw_data():
+    dump_dataframes(remove_faulty_rows(extract_all_raw_data()))
+
 
 def save_data(data, name):
     path = dir_path + ("/data/%s.dat" % name)

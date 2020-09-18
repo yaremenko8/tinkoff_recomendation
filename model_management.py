@@ -3,6 +3,7 @@ import os
 import platform
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
+
 def save_model(model, name):
     try:
         model = model.fitted_pipeline_

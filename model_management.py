@@ -11,7 +11,7 @@ def save_model(model, name):
         pass
     path = dir_path + ("/models/%s.mdl" % name)
     if platform.system() == "Windows":
-        path = path.reaplce('/', '\\')
+        path = path.replace('/', '\\')
     f = open(path, "wb")
     pickle.dump(model, f)
     f.close()
@@ -20,7 +20,7 @@ def save_model(model, name):
 def load_model(name):
     path = dir_path + ("/models/%s.mdl" % name)
     if platform.system() == "Windows":
-        path = path.reaplce('/', '\\')
+        path = path.replace('/', '\\')
     f = open(path, "rb")
     model = pickle.load(f)
     f.close()

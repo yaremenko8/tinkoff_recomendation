@@ -5,14 +5,14 @@ import pandas as pd
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def extract_all_raw_data():
-    path = dir_path + "/data"
+    path = dir_path + "/raw_data"
     if platform.system() == "Windows":
-        path = path.reaplce('/', '\\')
+        path = path.replace('/', '\\')
     directory = os.fsencode(path)
     dataframes = {}
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
-        filepath = os.path.join(directory, filename)
+        filepath = os.path.join(path, filename)
         dataframes[filename.replace(".csv", "")] = pd.read_csv(filepath)
     return dataframes
 
@@ -38,7 +38,7 @@ def extract_cleanse_and_dump_raw_data():
 def save_data(data, name):
     path = dir_path + ("/data/%s.dat" % name)
     if platform.system() == "Windows":
-        path = path.reaplce('/', '\\')
+        path = path.replace('/', '\\')
     f = open(path, "wb")
     pickle.dump(data, f)
     f.close()
@@ -47,7 +47,7 @@ def save_data(data, name):
 def load_data(name):
     path = dir_path + ("/data/%s.dat" % name)
     if platform.system() == "Windows":
-        path = path.reaplce('/', '\\')
+        path = path.replace('/', '\\')
     f = open(path, "rb")
     data = pickle.load(f)
     f.close()

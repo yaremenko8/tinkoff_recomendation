@@ -2,6 +2,7 @@ import pickle
 import os 
 import platform
 import pandas as pd
+from misc import cached
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -63,9 +64,10 @@ def load_data(name):
     f = open(path, "rb")
     data = pickle.load(f)
     f.close()
-    cache["name"] = data
+    cache[name] = data
     return data
 
+@cached
 def get_subjects():
     return load_data("party_x_socdem")['party_rk'].to_list()
     

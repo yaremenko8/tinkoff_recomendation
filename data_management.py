@@ -2,6 +2,7 @@ import pickle
 import os 
 import platform
 import pandas as pd
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def extract_all_raw_data():
@@ -50,12 +51,21 @@ def save_data(data, name):
     f.close()
 
 
+cache = {}
+
 def load_data(name):
+    global cache
+    if name in cache:
+        return cache[name]
     path = dir_path + ("/data/%s.dat" % name)
     if platform.system() == "Windows":
         path = path.replace('/', '\\')
     f = open(path, "rb")
     data = pickle.load(f)
     f.close()
+    cache["name"] = data
     return data
+
+def get_subjects():
+    return load_data("party_x_socdem")['party_rk'].to_list()
     

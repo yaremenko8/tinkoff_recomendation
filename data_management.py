@@ -17,7 +17,13 @@ def extract_all_raw_data():
     return dataframes
 
 
+def set_nan_values(df, column, value):
+    df[column][df[column] != df[column]] = value
+
 def remove_faulty_rows(dfs):
+    set_nan_values(dfs["transactions"], "merchant_group_rk", -1)
+    set_nan_values(dfs["transactions"], "category", "Другое")
+    # set_nan_values(dfs["party_x_socdem"], "marital_status_desc", "Неизвестно")
     for name in dfs:
         print("Before cleansing: %d. " % len(dfs[name]), end="")
         for column in dfs[name].columns:

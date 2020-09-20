@@ -201,7 +201,7 @@ def compare_subject_to_others(proper_subject, category, start, end):
         current_preference = get_mode_enterprise_by_period(proper_subject, category, start, end)
         submedian_preferences = [get_mode_enterprise(subject, category) for subject in submedian_others]
         print("Selecting common preferences..")
-        print("-1", submedian_preferences.count(-1), submedian_preferences)
+        #print("-1", submedian_preferences.count(-1), submedian_preferences)
         submedian_preference_counts = \
             {preference : submedian_preferences.count(preference) for preference in set(submedian_preferences) if preference != -1 and preference != None}
         most_favoured = sorted(submedian_preference_counts.items(), key=lambda x: x[1], reverse=True)[:3]

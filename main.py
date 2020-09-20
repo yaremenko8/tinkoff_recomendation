@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from forecast import *
 import numpy as np
 
+print("Hold on...")
+
 try:
     transactions = load_data('transactions')
 except:
@@ -11,7 +13,7 @@ except:
     print("Exiting...")
 
 i = 1
-
+print("Almost there...\n\n")
 ps = get_proper_income_subjects()
 cluster = predict_proper_subject_cluster(ps[0])
 others = [subject for subject in ps if predict_proper_subject_cluster(subject) == cluster]
@@ -29,7 +31,7 @@ print("Hello!")
 print("This example demosntrates the planning, advising and forecasting functionalities of Mercury -- you personal savings advisor.")
 
 print()
-print("Meet Alexander. Alexander is 35 year married male with no kids and an income of approximately 60000 RUR.")
+print("Meet Alexander. Alexander is a 35 year old married male with no kids and an income of approximately 60000 RUR.")
 print("Alexander wants to save up %d RUR by the end of the month. However it's hard to keep track of day-to-day expenses without a personal financial advisor. So Alexander employs the help of Mercury, a software product named after the Roman god of traders, designed to help him in his endeavours. He tells Mercury about his goals. Immediately Mercury tells Alexander about the trends of his current spending habits and how much he would want to change them if he is to pursue his goals." % goal)
 print('Press ENTER to find out what Mercury told him...')
 input()

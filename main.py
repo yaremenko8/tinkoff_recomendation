@@ -4,7 +4,11 @@ from datetime import datetime, timedelta
 from forecast import *
 import numpy as np
 
-transactions = load_data('transactions')
+try:
+    transactions = load_data('transactions')
+except:
+    print("ERROR!!! The program REQUIRES /data directory to be unpacked for it to be run. See readme.")
+    print("Exiting...")
 
 i = 1
 
@@ -17,22 +21,30 @@ subject_transactions["transaction_dttm"] = subject_transactions["transaction_dtt
 current = subject_transactions["transaction_dttm"].min()
 
 current = current.date() + timedelta(days=30)
-current = datetime()
+current = datetime(year = current.year, month = current.month, day=1)
+
+goal = 40000
 
 print("Hello!")
 print("This example demosntrates the planning, advising and forecasting functionalities of Mercury -- you personal savings advisor.")
 
+print()
+print("Meet Alexander. Alexander is 35 year married male with no kids and an income of approximately 60000 RUR.")
+print("Alexander wants to save up %d RUR by the end of the month. However it's hard to keep track of day-to-day expenses without a personal financial advisor. So Alexander employs the help of Mercury, a software product named after the Roman god of traders, designed to help him in his endeavours. He tells Mercury about his goals. Immediately Mercury tells Alexander about the trends of his current spending habits and how much he would want to change them if he is to pursue his goals." % goal)
+print('Press ENTER to see find out what Mercury told him...')
+input()
 
-print(get_subject_personal_data(others[i]))
+forecast, daily, adjustment = forecast_and_advise(others[i], current, current + timedelta(days=15), current + timedelta(days=30), goal=goal, plot=True)
 
-forecast_and_advise(others[i], datetime(2019, 10, 1), datetime(2019, 11, 1), datetime(2019, 10, 15), plot=True)
-'''
-tr = load_data('transactions')
+print('"Alexander, you will achieve your goal if you start spending %.1f RUR less daily. Actually if you carry on with your spendings the way you normally do and keep spending about %.1f RUR a day, you\'ll only have %.1f RUR by the end of this month"' % (adjustment, daily, forecast))
 
+print('"But how do I cut down my expenses?"')
 
-i = 0
-#print(tr[tr.party_rk == ps[i]]['transaction_dttm'])
+print('"Worry not, puny mortal. I will use my advanced multidimensional cluster insights to aid you in you endeavour."')
+print("Press ENTER to witness the might of multidimensional cluster insights...")
+input()
+print("This may take some time...")
 
-print(compare_subject_to_others(ps[i], 'Супермаркеты', datetime(2019, 9, 1), datetime(2019, 12, 1)))
+res = compare_subject_to_others(ps[i], 'Супермаркеты', datetime(2019, 9, 1), datetime(2019, 12, 1)))
 
-'''
+print("")

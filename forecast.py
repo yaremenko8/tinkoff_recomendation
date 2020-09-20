@@ -25,7 +25,7 @@ def forecast_and_advise(proper_subject, from_, till, now, goal=0, plot=False):
     adjustment = (goal - forecast) / days
     # adjustemnt = np.min(adjustment, 0)
     if plot:
-        plt.style.use("seaborn-pastel")
+        plt.style.use("dark_background")
         x_dates = [from_ + timedelta(seconds=int(value)) for value in x.T[0]]
         fig, ax = plt.subplots()
         ax.scatter([from_] + x_dates, np.concatenate(([income], y)), label='balance')
@@ -44,6 +44,6 @@ def forecast_and_advise(proper_subject, from_, till, now, goal=0, plot=False):
         plt.xlabel("Date")
         plt.title("Current trend vs Optimal trend as of %s" % str(now))
         plt.show()
-    return forecast, daily, -adjustment
+    return forecast, daily, adjustment
         
     

@@ -2,6 +2,7 @@ from datetime import datetime, timedelta as td
 from data_management import get_subjects, load_data
 import numpy as np
 import pandas as pd
+from copy import deepcopy
 from misc import cached
 import scipy.stats as stats
 
@@ -97,12 +98,11 @@ categories = {'Искусство', 'Одежда/Обувь', 'Дом/Ремо�
 def get_subject_spendings_data(subject, mode='median_of_monthly', transactions=None):
     if transactions is None:
         transactions = load_data("transactions")
-    subject_transactions = transactions[transactions["party_rk"] == subject]
     if mode == 'median_of_monthly':
-        subject_transactions = transactions[transactions["party_rk"] == subject]
+        subject_transactions = deepcopy(transactions[transactions["party_rk"] == subject])
         subject_transactions["transaction_dttm"] = subject_transactions["transaction_dttm"].map(to_datetime)
-        current = datetime(subject_transactions["transaction_dttm"].min())
-        final = datetime(subject_transactions["transaction_dttm"].max())
+        current = subject_transactions["transaction_dttm"].min()
+        final = subject_transactions["transaction_dttm"].max()
         current += td(days=30)
         spendings_by_month = []
         while current < final:
@@ -127,7 +127,7 @@ def get_subject_spendings_data(subject, mode='median_of_monthly', transactions=N
 def get_subject_actual_spendings(subject, start, end, transactions=None):
     if transactions is None:
         transactions = load_data("transactions")
-    subject_transactions = transactions[transactions["party_rk"] == subject]
+    subject_transactions = deepcopy(transactions[transactions["party_rk"] == subject])
     subject_transactions["transaction_dttm"] = subject_transactions["transaction_dttm"].map(to_datetime)
     spendings = {}
     transactions_of_given_period = \
@@ -143,9 +143,11 @@ def get_subject_actual_spendings(subject, start, end, transactions=None):
 def get_mode_enterprise_by_period(subject, category, start, end, transactions=None):
     if transactions is None:
         transactions = load_data("transactions")
+    subject_transactions = deepcopy(transactions[transactions["party_rk"] == subject])
+    subject_transactions["transaction_dttm"] = subject_transactions["transaction_dttm"].map(to_datetime)
     transactions_of_given_period = \
-        subject_transactions[(transactions["transaction_dttm"] <= end) & \
-                             (transactions["transaction_dttm"] > start)]
+        subject_transactions[(subject_transactions["transaction_dttm"] <= end) & \
+                             (subject_transactions["transaction_dttm"] > start)]
     return __uncached_get_mode_enterprise(subject, category, transactions=transactions_of_given_period)
 
 
@@ -154,7 +156,10 @@ def __uncached_get_mode_enterprise(subject, category, transactions=None):
         transactions = load_data("transactions")
     subject_transactions = transactions[transactions["party_rk"] == subject]
     subject_transactions_in_category = subject_transactions[subject_transactions["category"] == category]
-    return stats.mode(subject_transactions_in_category["merchant_group_rk"])[0][0]
+    try:
+        return stats.mode(subject_transactions_in_category["merchant_group_rk"])[0][0]
+    except IndexError:
+        return None
 
 #could be improved to return n-mode instead
 @cached
@@ -163,33 +168,53 @@ def get_mode_enterprise(subject, category, transactions=None):
         transactions = load_data("transactions")
     subject_transactions = transactions[transactions["party_rk"] == subject]
     subject_transactions_in_category = subject_transactions[subject_transactions["category"] == category]
-    return stats.mode(subject_transactions_in_category["merchant_group_rk"])[0][0]
+    try:
+        return stats.mode(subject_transactions_in_category["merchant_group_rk"])[0][0]
+    except IndexError:
+        return None
     
 @cached   
-def compare_subject_to_others(proprer_subject, category, start, end):
+def compare_subject_to_others(proper_subject, category, start, end):
+    print("Determining cluster...")
     cluster = predict_proper_subject_cluster(proper_subject)
+    print("Collecting cluster...")
     proper_subjects = get_proper_income_subjects()
-    others = [subject in proper_subjects if predict_proper_subject_cluster(subject) == cluster]
+    others = [subject for subject in proper_subjects if predict_proper_subject_cluster(subject) == cluster]
+    print("Computing spendings...")
     spendings = get_subject_actual_spendings(proper_subject, start, end)[category]
     spendings_of_others = [get_subject_spendings_data(subject)[category] for subject in others]
+    spendings_of_others = np.array(spendings_of_others)
+    others = np.array(others)
+    validity_mask = (spendings_of_others == spendings_of_others) & (spendings_of_others > 0)
+    spendings_of_others = spendings_of_others[validity_mask]
+    others = others[validity_mask]
     median = np.median(spendings_of_others)
-    if spendings * 0.98 <= median:
+    if False:# spendings * 0.98 <= median:
+        print("No suboptimality detected.")
         return None
     else:
+        print("Suboptimality detected.")
+        print("Extracting relevant subcluster...")
         submedian_others = [subject for subject in others if get_subject_spendings_data(subject)[category] < median]
         spendings_of_submedian_others = [get_subject_spendings_data(subject)[category] for subject in submedian_others]
+        print("Computing preferences...")
         current_preference = get_mode_enterprise_by_period(proper_subject, category, start, end)
         submedian_preferences = [get_mode_enterprise(subject, category) for subject in submedian_others]
-        submedian_preference_counts = \ 
-            {preference : submedian_preferences.count(preference) for preference in set(submedian_preferences) if preference != -1}
+        print("Selecting common preferences..")
+        print("-1", submedian_preferences.count(-1), submedian_preferences)
+        submedian_preference_counts = \
+            {preference : submedian_preferences.count(preference) for preference in set(submedian_preferences) if preference != -1 and preference != None}
         most_favoured = sorted(submedian_preference_counts.items(), key=lambda x: x[1], reverse=True)[:3]
-        print(most_favoured)
+        #print(most_favoured)
+        #print("Selecting optimal preferences...")
         most_favoured = list(dict(most_favoured))
         most_favoured_assessment = []
         for enterprise in most_favoured:
             submedian_others_enterprise_spendings = np.array(spendings_of_submedian_others)[np.array(submedian_preferences) == enterprise]
-            most_favoured_assesment.append(np.mean(submedian_others_enterprise_spendings))
-        return most_favoured[np.argmin(most_favoured_assesment)], spendings - np.min(most_favoured_assessment)
+            most_favoured_assessment.append(np.mean(submedian_others_enterprise_spendings))
+        return {"Former preference" : current_preference, 
+                "Advised preference" : most_favoured[np.argmin(most_favoured_assessment)], 
+                "Potential savings" : spendings - np.min(most_favoured_assessment)}
         
 
 

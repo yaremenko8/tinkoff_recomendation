@@ -35,6 +35,7 @@ print("Meet Alexander. Alexander is a 35 year old married male with no kids and 
 print("Alexander wants to save up %d RUR by the end of the month. However it's hard to keep track of day-to-day expenses without a personal financial advisor. So Alexander employs the help of Mercury, a software product named after the Roman god of traders, designed to help him in his endeavours. He tells Mercury about his goals. Immediately Mercury tells Alexander about the trends of his current spending habits and how much he would want to change them if he is to pursue his goals." % goal)
 print('Press ENTER to find out what Mercury told him...')
 input()
+print("\nWait for it...\n")
 
 forecast, daily, adjustment = forecast_and_advise(others[i], current, current + timedelta(days=30), current + timedelta(days=15), goal=goal, plot=True)
 

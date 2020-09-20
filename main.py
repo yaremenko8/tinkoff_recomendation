@@ -41,7 +41,7 @@ forecast, daily, adjustment = forecast_and_advise(others[i], current, current + 
 
 print('\n"Alexander, you will achieve your goal if you start spending %.1f RUR less daily. Actually if you carry on with your spendings the way you normally do and keep spending about %.1f RUR a day, you\'ll only have %.1f RUR by the end of this month"\n' % (adjustment, daily, forecast))
 
-print('"But how do I cut down my expenses?\n"')
+print('"But how do I cut down my expenses?"\n')
 
 print('"Worry not, puny mortal. I will use my advanced multidimensional cluster insights to aid you in your endeavour."\n')
 print("Press ENTER to witness the might of multidimensional cluster insights...")
@@ -55,4 +55,4 @@ print('"Behold, I found a solution." -- said Mercury -- "I know that a man like 
 print('"How much would that save me?"\n')
 print('"Up to %.1f RUR!"' % res['Potential savings'])
 print('"Wow. Just on groceries. What about other kinds of goods and services? Could we save some money there as well?"')
-print('"What!? You insolent worm! You you\'re still using the trial version! [but technically, yes, ofcourse I could do that]"')
+print('"What!? You insolent worm! You\'re still using the trial version! [but technically, yes, ofcourse I could do that]"')
